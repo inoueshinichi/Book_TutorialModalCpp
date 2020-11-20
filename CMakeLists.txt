@@ -7,6 +7,7 @@ enable_testing()
 add_executable(cpp_tutorial 
                all.hpp
                main.cpp
+               numeric.hpp
                )
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
