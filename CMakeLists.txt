@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(cpp_tutorial VERSION 0.1.0)
 
-include(CTest)
-enable_testing()
+# include(CTest)
+# enable_testing()
 
-add_executable(cpp_tutorial 
-               all.hpp
-               main.cpp
-               numeric.hpp
-               )
+set(CMAKE_CXX_STANDARD 20)
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)
+add_subdirectory(ch11_numeric) # 整数
+
+# set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+# set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+# include(CPack)

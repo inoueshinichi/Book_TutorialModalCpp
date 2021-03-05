@@ -11,7 +11,11 @@
 #include <typeinfo>
 #include <exception>
 #include <initializer_list>
-#include <cstdalign>
+
+#if __has_include(<cstdalign>)
+    #include <cstdalign
+#endif
+
 #include <stdexcept>
 #include <cassert>
 #include <cerrno>
@@ -37,6 +41,11 @@
 #include <cfenv>
 #include <random>
 #include <numeric>
+
+#if __has_include(<numbers>)
+#   include <numbers>
+#endif
+
 #include <cmath>
 #include <iosfwd>
 #include <ios>
@@ -49,6 +58,10 @@
 
 #if __has_include(<filesystem>)
 #   include <filesystem>
+#endif
+
+#if __has_include (<cxxabi.h>)
+#   include <cxxabi.h>
 #endif
 
 #include <cstdio>
