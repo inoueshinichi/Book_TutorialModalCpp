@@ -38,7 +38,7 @@ int main(int, char**)
 
     // 整数のサイズ
 #define GET_SIZE(TYPE)                                   \
-    std::printf("sizeof(%s): %d\n", #TYPE, sizeof(TYPE))
+    std::printf("sizeof(%s): %ud\n", #TYPE, sizeof(TYPE))
 
     using schar = signed char;
     using uchar = unsigned char;
@@ -86,32 +86,27 @@ int main(int, char**)
     NUMERIC_RANGE(double);
     NUMERIC_RANGE(longdouble);
 
-    // infinity
-    std::cout << std::numeric_limits<float>::infinity() << std::endl;
-    std::cout << -std::numeric_limits<float>::infinity() << std::endl;
-
-    // nan
-    std::cout << std::numeric_limits<float>::quiet_NaN() << std::endl;
-
-    // 有効桁数
-    std::cout << "float: "s << std::numeric_limits<float>::digits10 << std::endl;
-    std::cout << "double: "s << std::numeric_limits<double>::digits10 << std::endl;
-    std::cout << "long double: "s << std::numeric_limits<long double>::digits10 << std::endl;
-
-    // max_digit
-    std::cout << "float: "s << std::numeric_limits<float>::max_digits10 << std::endl;
-    std::cout << "double: "s << std::numeric_limits<double>::max_digits10 << std::endl;
-    std::cout << "long double: "s << std::numeric_limits<long double>::max_digits10 << std::endl;
-
-    // epsilon
-    std::cout << "float: "s << std::numeric_limits<float>::epsilon() << std::endl;
-    std::cout << "double: "s << std::numeric_limits<double>::epsilon() << std::endl;
-    std::cout << "long double: "s << std::numeric_limits<long double>::epsilon() << std::endl;
-
-    // clamp
-    int target = 256;
-    std::cout << std::clamp(target, 0, 255) << std::endl; 
-
-    // 数学定数
-
+    // 符号なし整数型の最小値 - 1 = 最大値
+    // 符号なし整数型の最大値 + 1 = 最小値
+#define MUMERIC_BEYOND_MAX_MIN(TYPE)                                                                 \
+    NUMERIC_RANGE(TYPE);                                                                             \
+    TYPE min_minus_one_##TYPE = std::numeric_limits<TYPE>::min() - 1u;                               \
+    TYPE max_plus_one_##TYPE = std::numeric_limits<TYPE>::max() + 1u;                                \
+    std::cout << "min - 1 of " << #TYPE << ": " << min_minus_one_##TYPE << std::endl;                \
+    std::cout << "max + 1 of " << #TYPE << ": " << max_plus_one_##TYPE << std::endl
+    MUMERIC_BEYOND_MAX_MIN(char);
+    MUMERIC_BEYOND_MAX_MIN(schar);
+    MUMERIC_BEYOND_MAX_MIN(uchar);
+    MUMERIC_BEYOND_MAX_MIN(short);
+    MUMERIC_BEYOND_MAX_MIN(ushort);
+    MUMERIC_BEYOND_MAX_MIN(int);
+    MUMERIC_BEYOND_MAX_MIN(uint);
+    MUMERIC_BEYOND_MAX_MIN(long);
+    MUMERIC_BEYOND_MAX_MIN(ulong);
+    MUMERIC_BEYOND_MAX_MIN(longlong);
+    MUMERIC_BEYOND_MAX_MIN(ulonglong);
+    MUMERIC_BEYOND_MAX_MIN(size_t);
+    MUMERIC_BEYOND_MAX_MIN(float);
+    MUMERIC_BEYOND_MAX_MIN(double);
+    MUMERIC_BEYOND_MAX_MIN(longdouble);
 }
