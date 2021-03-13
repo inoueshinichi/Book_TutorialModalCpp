@@ -37,6 +37,50 @@ int main(int, char**)
     // any_of(first, last, pred). [first, last)に対して、pred(*iter)が一つでも
     // trueならばtrue, すべてfalseならfalseを返す.
     {
-        
+        std::vector<int> v = {1,2,3,4,5};
+
+        // 要素に1つでも3が含まれているか?
+        // true
+        bool has_3 = std::any_of(std::begin(v), std::end(v),
+                            [](auto x) { return x == 3; });
+        std::cout << std::boolalpha << "has_3: " << has_3 << std::endl;
+
+        // 要素に１つでも10が含まれているか？
+        // false
+        bool has_10 = std::any_of(std::begin(v), std::end(v),
+                            [](auto x) { return x == 10; });
+        std::cout << std::boolalpha << "has_10 : " << has_10 << std::endl;
     }
+
+    // any_of
+    auto any_of = [](auto first, auto last, auto pred) {
+        for (auto iter = first; iter != last; ++iter) {
+            if (pred(*iter))
+                return true;
+        }
+        return false;
+    };
+
+    // none_of
+    // none_of(first, last, pred).[first, last)の間に対して、pred(*iter)がすべて、
+    // falseならtrueを返す.
+    {
+        std::vector<int> v = {1,2,3,4,5};
+
+        // 値は100か?
+        auto is_100 = [](auto x) { return x == 100; };
+        bool b = std::none_of(std::begin(v), std::end(v), is_100);
+        std::cout << std::boolalpha << "is_100 : " << b << std::endl;
+    }
+
+    // none_of
+    auto none_of = [](auto first, auto last, auto pred) {
+        for (auto iter = first; iter != last; ++iter) {
+            if (pred(*iter))
+                return false;
+        }
+        return true;
+    };
+
+    
 }
