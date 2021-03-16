@@ -53,3 +53,30 @@ add_executable(test_algorithm_6
 target_include_directories(test_algorithm_6 PUBLIC
     ${CMAKE_SOURCE_DIR}/all.hpp
 )
+
+# algorithm_7
+add_executable(test_algorithm_7
+    main_algorithm_7.cpp
+)
+
+target_include_directories(test_algorithm_7 PUBLIC
+    ${CMAKE_SOURCE_DIR}/all.hpp
+)
+
+# algorithm_8
+add_executable(test_algorithm_8
+    main_algorithm_8.cpp
+)
+
+target_include_directories(test_algorithm_8 PUBLIC
+    ${CMAKE_SOURCE_DIR}/all.hpp
+)
+
+# algorithm_9
+add_executable(test_algorithm_9
+    main_algorithm_9.cpp
+)
+
+target_include_directories(test_algorithm_9 PUBLIC
+    ${CMAKE_SOURCE_DIR}/all.hpp
+)
