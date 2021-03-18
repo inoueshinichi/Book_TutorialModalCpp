@@ -30,6 +30,7 @@
 #include <forward_list>
 #include <list>
 #include <vector>
+#include <array>
 #include <map>
 #include <set>
 #include <unordered_map>
