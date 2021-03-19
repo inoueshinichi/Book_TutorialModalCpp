@@ -19,6 +19,7 @@ add_subdirectory(ch20_std_array)
 add_subdirectory(ch22_std_array2)
 add_subdirectory(ch24_std_array3)
 add_subdirectory(ch25_array_iterator)
+add_subdirectory(ch26_array_exception)
 
 # set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 # set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
