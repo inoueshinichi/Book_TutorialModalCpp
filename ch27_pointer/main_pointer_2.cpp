@@ -6,6 +6,7 @@ namespace pointer_type {
     template <class T> using add_pointer_t = T*;
 }
 
+
 int main(int, char**)
 {
     // 配列の型
@@ -80,11 +81,6 @@ int main(int, char**)
 
         // int
         std::remove_pointer_t<int *> q = 0;
-    }
-
-    // クラスへのポインター
-    {
-        
     }
 }
 
