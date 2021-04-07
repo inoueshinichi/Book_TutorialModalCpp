@@ -16,7 +16,7 @@ namespace random_access_iterator_ns
 
     // nの型が符号付き整数型でよい
     template <class RandomAccessIterator>
-    void f(RandomAccessIterator i, int n)
+    void f1(RandomAccessIterator i, int n)
     {
         i + n;
         i - n;
@@ -31,15 +31,15 @@ namespace random_access_iterator_ns
 
     // イテレータ間の距離を計算したいときは、イテレータ同士を引き算する
     template <class RandomAccessIterator>
-    void f(RandomAccessIterator a, RandomAccessIterator b)
+    void f2(RandomAccessIterator a, RandomAccessIterator b)
     {
         b - a; // aからbまでの距離
         a - b; // aからbまでの距離
     }
 
     // イテレータ間の距離は負数にもなる
-    template <class RandomAcdessIterator>
-    void f(RandomAccessIterator a)
+    template <class RandomAccessIterator>
+    void f3(RandomAccessIterator a)
     {
         auto b = a;
         // bはaより3進んでいる
@@ -50,7 +50,7 @@ namespace random_access_iterator_ns
 
     // イテレータiのn個先を参照したい場合
     template <class RandomAccessIterator>
-    void f(RandomAccessIterator i, std::size_t n)
+    void f4(RandomAccessIterator i, std::size_t n)
     {
         // *(i + n)
         i[n];
@@ -58,7 +58,7 @@ namespace random_access_iterator_ns
 
     // ランダムアクセスイテレータは大小比較ができる
     template <class RandomAccessIterator>
-    void f(RandomAccessIterator i, RandomAccessIterator j)
+    void f5(RandomAccessIterator i, RandomAccessIterator j)
     {
         i < j;
         i > j;
@@ -69,7 +69,7 @@ namespace random_access_iterator_ns
     // イテレータの比較は、イテレータが参照する値の比較ではなく、
     // イテレータが参照する要素の順番の比較.
     template <class Iterator>
-    void f(Iterator i) 
+    void f6(Iterator i) 
     {
         // jはn+i番目を指す
         auto j = i + 1;
@@ -80,7 +80,7 @@ namespace random_access_iterator_ns
 
     // 双方向イテレータ以下のイテレータができる比較は、同値比較だけ。
     template <class Iterator>
-    void f(Iterator i, Iterator j) 
+    void f7(Iterator i, Iterator j) 
     {
         i == j;
         i != j;
@@ -88,7 +88,7 @@ namespace random_access_iterator_ns
 
     // イテレータは同じn番目の要素を指しているときに等しいと比較される
     template <class Iterator>
-    void f(Iterator i )
+    void f8(Iterator i )
     {
         auto j = i;
         i == j; // true
@@ -103,7 +103,7 @@ namespace bidirectional_iterator_ns
 {
     // n番目の要素に対して、n-1番目、n+1番目の要素を参照できる
     template <class BidirectionalIterator>
-    void f(BidirectionalIterator i) 
+    void f9(BidirectionalIterator i) 
     {
         ++i; // i+1
         --i; // i-1
@@ -134,7 +134,7 @@ namespace forward_iterator_ns
 {
     // 前方イテレータは前にしか進めない
     template <class ForwardIterator>
-    void f(ForwardIterator i)
+    void f10(ForwardIterator i)
     {
         ++i;
     }
@@ -143,7 +143,7 @@ namespace forward_iterator_ns
     // イテレータの指す要素を動かす前のイテレータの値を保持しておき、
     // 保持した値を動かしたとき、2つのイテレータは同一の値を指す.
     template <class ForwardIterator>
-    void f(ForwardIterator i)
+    void f11(ForwardIterator i)
     {
         // 動かす前の値を保持
         auto prev = i;
@@ -153,7 +153,7 @@ namespace forward_iterator_ns
         ++prev;
 
         // true
-        bool b = (i == prev)
+        bool b = (i == prev);
 
         // r1, r2は同じ要素を指す
         auto& r1 = *i;
@@ -168,7 +168,7 @@ namespace input_iterator_ns
 {
     // 入力イテレータは、イテレータの比較、イテレータの参照、イテレータのインクリメントが可能.
     template <class InputIterator>
-    void f(InputIterator i, InputIterator j)
+    void f12(InputIterator i, InputIterator j)
     {
         // 比較
         bool b1 = (i == j);
@@ -186,7 +186,7 @@ namespace input_iterator_ns
 
     // 入力イテレータは読み込むことしか保証されていない
     template <class InputIterator>
-    void f(InputIterator i)
+    void f13(InputIterator i)
     {
         // OK
         auto value = *i;
@@ -201,7 +201,7 @@ namespace output_iterator_ns
 {
     // 出力イテレータは、イテレータのインクリメントとイテレータの参照への代入ができる
     template <class OutputIterator>
-    void f(OutputIterator i, typename OutputIterator::value_type v)
+    void f14(OutputIterator i, typename OutputIterator::value_type v)
     {
         // 参照への代入
         *i = v;
@@ -214,10 +214,84 @@ namespace output_iterator_ns
     // 出力イテレータを参照した結果は定められていない。voidかも。
     // 出力イテレータの値を読むのは意味がない
     template <class OutputIterator>
-    void f(OutputIterator i)
+    void f15(OutputIterator i)
     {
         // 意味がない
         auto value = *i;
     }
 }
 
+
+// イテレータトレイツ
+namespace iterator_traits_ns
+{
+    // difference_typeは、イテレータ同士の距離を指す数値
+    template <class Iterator>
+    void f16(Iterator i, Iterator j)
+    {
+        // イテレータ同士の距離
+        typename std::iterator_traits<Iterator>::defference_type diff = j - i;
+    }
+
+    // value_type: イテレータの参照する値の型
+    // pointer: そのポインター型
+    // reference: そのリファレンス型
+    template <class Iterator>
+    void f17(Iterator i)
+    {
+        // 値型
+        typename std::iterator_traits<Iterator>::value_type v = *i;
+        // ポインター型
+        typename std::iterator_traits<Iterator>::pointer p = &v;
+        // リファレンス型
+        typename std::iterator_traits<Iterator>::reference r = v;
+    }
+
+    /**
+     * @brief イテレータカテゴリー
+     * struct input_iterator_tag {};
+     * struct output_iterator_tag {};
+     * struct forward_iterator_tag : public input_iterator_tag, output_iterator_tag {};
+     * struct bidirectional_iterator_tag : public forward_iterator_tag {};
+     * struct random_access_iterator_tag : public bidirectional_iterator_tag {}:
+     */
+    // あるイテレータがあるイテレータカテゴリーを満たすかどうかを調べる
+    template <class Tag, class Iterator>
+    constexpr bool is_category_of()
+    {
+        using iter_tag = typename std::iterator_traits<Iterator>::iterator_category;
+        return std::is_base_of_v<Tag, iter_tag>;
+    }
+}
+
+namespace output_iterator_ns
+{
+    // 出力イテレータの要件しか満たさないイテレータ
+    struct cout_iterator
+    {
+        // ボイラープレートコード
+        //      出力イテレータではつかわないのでvoidでいい
+        using difference_type = void;
+        using value_type = void;
+        using referece = void;
+        using pointer = void;
+        //      イテレータカテゴリーは出力イテレータ
+        using uterator_category = std::output_iterator_tag;
+        // 何もしない
+        // 自分自身を返すだけ
+        cout_iterator& operator*() { return *this; }
+        cout_iterator& operator++() { return *this; }
+        cout_iterator& operator++(int) { return *this; }
+        // ボイラープレートコード
+
+        //  ここが肝心
+        template <class T>
+        cout_iterator& operator=(const T& x)
+        {
+            std::cout << x;
+            return *this;
+        }
+    };
+
+    
+}
