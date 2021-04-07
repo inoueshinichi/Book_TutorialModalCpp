@@ -2,6 +2,22 @@
 
 #include "iterator_category.hpp"
 
+namespace inference_type_ns
+{
+    template <class T>
+    void f(T) {
+        std::cout << "Inference of f func" << std::endl;
+    }
+
+    template <class T>
+    struct S
+    {
+        S(T) {
+            std::cout << "Inference of S class" << std::endl;
+        }
+    };
+}
+
 
 int main(int, char**)
 {
@@ -46,6 +62,37 @@ int main(int, char**)
         auto out = std::back_inserter(temp);
 
         std::copy(std::begin(v), std::end(v), out);
+    }
+    /**
+     * @brief std::back_inserterの実装: テンプレート関数の型推論を使う
+     * 
+     * // 出力イテレータ
+     * template <class Container>
+     * struct back_insert_iterator
+     * {
+     *      back_insert_iterator(Container& c)
+     *          : c(&c) {}
+     *      Container* c;
+     * 
+     *      // その他のコード
+     * };
+     * 
+     * // 出力イテレータを返すテンプレート関数
+     * template <class Container>
+     * back_insert_iterator<Container> back_inserter(Container& c)
+     * {
+     *      return back_insert_iterator<Container>(c);
+     * }
+     */
+
+    // C++17以前のC++ではクラスのコンストラクターからテンプレート実引数の推定ができなかった
+    {
+        using namespace inference_type_ns;
+        // f<int>と推定
+        f(0);
+
+        // S<int>と推定
+        S s(0);
     }
 
     return 0;
