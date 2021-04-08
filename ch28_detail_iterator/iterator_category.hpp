@@ -264,6 +264,8 @@ namespace iterator_traits_ns
     }
 }
 
+
+// 出力イテレータ
 namespace output_iterator_ns
 {
     // 出力イテレータの要件しか満たさないイテレータ
@@ -292,6 +294,277 @@ namespace output_iterator_ns
             return *this;
         }
     };
+}
+
+
+// 入力イテレータ
+namespace input_iterator_ns
+{
+    // std::cinからT型を読み込む入力イテレータ
+    template <class T>
+    struct cin_iterator
+    {
+        // --- ボイラープレートコード
+        using difference_type = std::ptrdiff_t;
+        using value_type = T;
+        using reference = T&;
+        using const_reference = const T&;
+        using pointer = T*;
+        // イテレータカテゴリーは入力イテレータ
+        using iterator_category = std::input_iterator_tag;
+        // --- ボイラープレートコード
+
+        // コンストラクター
+        cin_iterator(bool _fail = false)
+            : fail(_fail) { ++*this; }
+        
+        // キャッシュした値を返す
+        const_reference operator *() const 
+        { // const referenceだとエラーになるが、原因がわからない
+            return value;
+        }
+
+        // 新しい値をキャッシュする
+        cin_iterator& operator++()
+        {
+            if (!fail)
+            {
+                std::cin >> value;
+                fail = std::cin.fail();
+            }
+            return *this;
+        }
+
+        // 後置インクリメント
+        cin_iterator operator++(int)
+        {
+            auto old = *this;
+            ++*this;
+            return old;
+        }
+
+        // イテレータの等価比較の状態
+        bool fail;
+        // 値のキャッシュ
+        value_type value;
+    };
+
+    // 比較演算子
+    template <class T>
+    bool operator==(const cin_iterator<T>& l, const cin_iterator<T>& r)
+    {
+        return l.fail == r.fail;
+    }
+
+    template <class T>
+    bool operator!=(const cin_iterator<T>& l, const cin_iterator<T>& r)
+    {
+        return !(l == r);
+    }
+
+    // イテレータが終了条件に達したかどうかを判定できる
+    template <class InputIterator>
+    void print(InputIterator iter, InputIterator end_iter)
+    {
+        // 終了条件に達するまで
+        while (iter != end_iter)
+        {
+            std::cout << *iter;
+            ++iter;
+        }
+    }
+}
+
+
+// 前方イテレータ
+namespace forward_iterator_ns
+{
+    template <class T>
+    struct iota_iterator
+    {
+        // イテレータ同士の距離を表現する型
+        using difference_type = std::ptrdiff_t;
+        // 要素の型
+        using value_type = T;
+        using reference = T&;
+        using const_reference = const T&;
+        using pointer = T*;
+        // イテレータカテゴリーは前方イテレータ
+        using iterator_category = std::forward_iterator_tag;
+
+        // 値を保持する
+        value_type value;
+
+        // コンストラクタ
+        iota_iterator(value_type value = 0)
+            : value(value) {}
+
+        // コピーコンストラクタは自動生成される
+
+        // 残りのコード
+        // 非const版
+        reference operator*() noexcept
+        {
+            return value;
+        }
+
+        // const版
+        const_reference operator*() const noexcept
+        {
+            return value;
+        }
+
+        // 前置
+        iota_iterator& operator++() noexcept
+        {
+            ++value;
+            return *this;
+        }
+
+        // 後置
+        iota_iterator operator++(int) noexcept
+        {
+            auto old = *this;
+            ++*this;
+            return old;
+        }
+
+        // 比較
+        bool operator==(const iota_iterator& i) const noexcept
+        {
+            return value == i.value;
+        }
+
+        bool operator != (const iota_iterator& i) const noexcept
+        {
+            return !(*this == i);
+        }
+    };
+
+
+    // 前方リンクリスト
+    template <class T>
+    struct forward_link_list
+    {
+        T value;
+        forward_link_list* next;
+    };
+
+    // forward_link_list<T>へのイテレータの骨子
+    template <class T>
+    struct iterator
+    {
+        forward_link_list<T>* ptr;
+
+        T& operator*() noexcept
+        {
+            return ptr->value;
+        }
+
+        iterator& operator++() noexcept
+        {
+            ptr = ptr->next;
+            return *this;
+        }
+
+        // 残りのメンバ関数
+    };
+
+
+    // n+1番目の要素を返す関数
+    template <class T>
+    forward_link_list<T>& next(forward_link_list<T>& list) noexcept
+    {
+        // 次の要素
+        return *(list.next);
+    }
+
+    // 前方イテレータが入力/出力イテレータと違う点は、マルチパス保証があること。
+    // イテレータのコピーを使いまわして、複数回同じ要素をたどることができる。
+    template <class ForwardIterator>
+    void f(ForwardIterator first, ForwardIterator last)
+    {
+        using vector_type = std::vector<typename ForwardIterator::value_type>;
+
+        // 全要素の値をv1にコピー
+        vector_type v1;
+        for (auto iter = first; iter != last; ++iter)
+        {
+            v1.push_back(*iter);
+        }
+
+        // 全要素の値をv2にコピー
+        // イテレータがもう一度使われた
+        vector_type v2;
+        for (auto iter = first; iter != last; ++iter)
+        {
+            v2.push_back(*iter);
+        }
+
+        // マルチパス保証があれば、常にtrue
+        bool b = (v1 == v2);
+    }
+
+    // ※前方イテレータ以上のイテレータにはマルチパス保証がある.
+}
+
+
+// 双方向イテレータ
+namespace bidirectional_iterator_ns
+{
+    // 双方向化したiota_iterator
+    template <class T>
+    struct iota_iterator
+    {
+        // イテレータカテゴリ-
+        using iterator_category = std::bidirectional_iterator_tag;
+
+        iota_iterator& operator--() noexcept
+        {
+            --value;
+            return *this;
+        }
+
+        iota_iterator& operator++() noexcept
+        {
+            auto old = *this;
+            --*this;
+            return *this;
+        }
+
+        // 省略
+    };
 
     
+
+    // 双方向リンクリスト
+    template <class T>
+    struct bidirectional_link_list
+    {
+        T value;
+        bidirectional_link_list* prev;
+        bidirectional_link_list* next;
+    };
+
+
+    // 双方向リンクリストに対するイテレータ操作の骨子
+    template <class T>
+    struct iterator
+    {
+        // 前方n+1
+        iterator& operator++() noexcept
+        {
+            ptr = ptr->next;
+            return *this;
+        }
+
+        // 後方n-1
+        iterator& operator--() noexcept
+        {
+            ptr = ptr->prev;
+            return *this;
+        }
+    };
 }
+
+

@@ -34,6 +34,7 @@ int main(int, char**)
         std::array<int, 5> a = {1,2,3,4,5};
         std::vector<int> v(a.size());
 
+        // 前方イテレータ以降の派生クラスのイテレータは出力イテレータとみなせる
         std::copy(std::begin(a), std::end(a), std::begin(v));
     }
 
@@ -47,6 +48,7 @@ int main(int, char**)
         std::cout << std::endl;
     }
 
+    // 標準ライブラリのostream_iterator
     // std::ostream_iterator = cout_iterator
     {
         std::vector<int> v = {1,2,3,4,5};
@@ -77,7 +79,7 @@ int main(int, char**)
      *      // その他のコード
      * };
      * 
-     * // 出力イテレータを返すテンプレート関数
+     * // 出力イテレータを返す関数テンプレート
      * template <class Container>
      * back_insert_iterator<Container> back_inserter(Container& c)
      * {
@@ -93,6 +95,100 @@ int main(int, char**)
 
         // S<int>と推定
         S s(0);
+    }
+
+    // 入力イテレータ
+    // cin_iterator<T>
+    {
+        using namespace input_iterator_ns;
+
+        // cin_iterator<int> input, fail(true);
+        // std::vector<int> buffer;
+
+        // // 無限入力ではないか？
+        // std::copy(input, fail, std::back_inserter(buffer));
+        
+        // print(std::begin(buffer), std::end(buffer));
+        // std::cout << std::endl;
+
+        // cin_iteratorを渡した場合、失敗状態になるまで標準出力する
+        //print(input, fail);
+    }
+
+
+    // std::istream_iterator<T>
+    // std::cinが失敗状態になるまで、標準入力から読み込み続けるイテレータ
+    {
+        // std::istream_iterator<int> iter(std::cin), end_iter;
+        // std::vector<int> v;
+
+        // std::copy(iter, end_iter, std::back_inserter(v));
+        // input_iterator_ns::print(std::begin(v), std::end(v));
+    }
+
+    // 前方イテレータ
+    // iota_iterator<T>
+    // T型の整数を保持して、operator*()でリファレンスを返し、operator++でインクリメントする
+    {
+        using namespace forward_iterator_ns;
+        std::cout << "iota_iterator" << std::endl;
+
+        // // step 1
+        // // i(0)
+        // iota_iterator<int> i;
+        // // iota_iterator<int>
+        // iota_iterator first(0), last(10);
+        // // lastをiにコピー
+        // i = last;
+
+        // // step 2
+        // // 非constなオブジェクト
+        // iota_iterator non_const(0);
+        // // 非const版のoperator*を呼び出す
+        // int value = *non_const;
+        // // 変更できる
+        // *non_const = 1;
+        // // constなオブジェクト
+        // iota_iterator immutable(0);
+        // // const版のoperator*を呼び出す
+        // int const_value = *immutable;
+        // // 変更はできない
+
+    
+        // final step
+        iota_iterator iter(0);
+        *iter; // 0
+        *++iter; // 1
+        *++iter; // 2
+
+        iota_iterator first(0), last(10);
+
+        // 0123456789と出力される
+        std::for_each(first, last, 
+        [](auto i) { std::cout << i; });
+        std::cout << std::endl;
+
+        std::vector<int> v;
+        std::copy(first, last, std::back_inserter(v));
+        // vは{0,1,2,3,4,5,6,7,8,9}
+    }
+
+    // 前方リンクリスト
+    {
+        using namespace forward_iterator_ns;
+
+        forward_link_list<int> list3 {3, nullptr};
+        forward_link_list<int> list2 {2, &list3};
+        forward_link_list<int> list1 {1, &list2};
+        forward_link_list<int> list0 {0, &list1};
+
+        // 次の要素
+        *(list0.next); // list1
+        // 次の次の要素
+        *(list0.next->next); // list2
+        // 次の次の次の要素
+        *(list0.next->next->next); // list3
+
     }
 
     return 0;
