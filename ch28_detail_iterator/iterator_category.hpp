@@ -278,7 +278,7 @@ namespace output_iterator_ns
         using referece = void;
         using pointer = void;
         //      イテレータカテゴリーは出力イテレータ
-        using uterator_category = std::output_iterator_tag;
+        using iterator_category = std::output_iterator_tag;
         // 何もしない
         // 自分自身を返すだけ
         cout_iterator& operator*() { return *this; }
@@ -316,7 +316,7 @@ namespace input_iterator_ns
 
         // コンストラクター
         cin_iterator(bool _fail = false)
-            : fail(_fail) { ++*this; }
+            : fail(_fail) { ++(*this); }
         
         // キャッシュした値を返す
         const_reference operator *() const 
@@ -339,7 +339,7 @@ namespace input_iterator_ns
         cin_iterator operator++(int)
         {
             auto old = *this;
-            ++*this;
+            ++(*this);
             return old;
         }
 
@@ -516,6 +516,69 @@ namespace bidirectional_iterator_ns
     template <class T>
     struct iota_iterator
     {
+        // ------------ forward_iteratorでの定義
+
+        // イテレータ同士の距離を表現する型
+        using difference_type = std::ptrdiff_t;
+        // 要素の型
+        using value_type = T;
+        using reference = T&;
+        using const_reference = const T&;
+        using pointer = T*;
+        // イテレータカテゴリーは前方イテレータ
+        //using iterator_category = std::forward_iterator_tag;
+
+        // 値を保持する
+        value_type value;
+
+        // コンストラクタ
+        iota_iterator(value_type value = 0)
+            : value(value) {}
+
+        // コピーコンストラクタは自動生成される
+
+        // 残りのコード
+        // 非const版
+        reference operator*() noexcept
+        {
+            return value;
+        }
+
+        // const版
+        const_reference operator*() const noexcept
+        {
+            return value;
+        }
+
+        // 前置
+        iota_iterator& operator++() noexcept
+        {
+            ++value;
+            return *this;
+        }
+
+        // 後置
+        iota_iterator operator++(int) noexcept
+        {
+            auto old = *this;
+            ++*this;
+            return old;
+        }
+
+        // 比較
+        bool operator==(const iota_iterator& i) const noexcept
+        {
+            return value == i.value;
+        }
+
+        bool operator != (const iota_iterator& i) const noexcept
+        {
+            return !(*this == i);
+        }
+
+        // ------------
+
+
         // イテレータカテゴリ-
         using iterator_category = std::bidirectional_iterator_tag;
 
@@ -525,17 +588,15 @@ namespace bidirectional_iterator_ns
             return *this;
         }
 
-        iota_iterator& operator++() noexcept
+        iota_iterator& operator--(int) noexcept
         {
             auto old = *this;
-            --*this;
+            --(*this);
             return *this;
         }
 
         // 省略
     };
-
-    
 
     // 双方向リンクリスト
     template <class T>
@@ -546,11 +607,12 @@ namespace bidirectional_iterator_ns
         bidirectional_link_list* next;
     };
 
-
     // 双方向リンクリストに対するイテレータ操作の骨子
     template <class T>
     struct iterator
     {
+        bidirectional_link_list<T>* ptr;
+
         // 前方n+1
         iterator& operator++() noexcept
         {
@@ -568,3 +630,364 @@ namespace bidirectional_iterator_ns
 }
 
 
+// ランダムアクセスイテレータ
+namespace random_access_iterator_ns
+{
+    // iota_iteratorをランダムアクセスイテレータに対応させる
+    template <class T>
+    struct iota_iterator
+    {
+        // ------------ bidirectional_iteratorでの定義
+        // ------------ forward_iteratorでの定義
+        // イテレータ同士の距離を表現する型
+        using difference_type = std::ptrdiff_t;
+        // 要素の型
+        using value_type = T;
+        using reference = T&;
+        using const_reference = const T&;
+        using pointer = T*;
+        // イテレータカテゴリーは前方イテレータ
+        //using iterator_category = std::forward_iterator_tag;
+
+        // 値を保持する
+        value_type value;
+
+        // コンストラクタ
+        iota_iterator(value_type value = 0)
+            : value(value) {}
+
+        // コピーコンストラクタは自動生成される
+
+        // 残りのコード
+        // 非const版
+        reference operator*() noexcept
+        {
+            return value;
+        }
+
+        // const版
+        const_reference operator*() const noexcept
+        {
+            return value;
+        }
+
+        // 前置
+        iota_iterator& operator++() noexcept
+        {
+            ++value;
+            return *this;
+        }
+
+        // 後置
+        iota_iterator operator++(int) noexcept
+        {
+            auto old = *this;
+            ++*this;
+            return old;
+        }
+
+        // 比較
+        bool operator==(const iota_iterator& i) const noexcept
+        {
+            return value == i.value;
+        }
+
+        bool operator != (const iota_iterator& i) const noexcept
+        {
+            return !(*this == i);
+        }
+        
+        // ------------
+
+        // イテレータカテゴリ-
+        //using iterator_category = std::bidirectional_iterator_tag;
+
+        using iterator_category = std::random_access_iterator_tag;
+
+        iota_iterator& operator--() noexcept
+        {
+            --value;
+            return *this;
+        }
+
+        iota_iterator& operator--(int) noexcept
+        {
+            auto old = *this;
+            --(*this);
+            return old;
+        }
+        // ----------
+
+        iota_iterator& operator += (difference_type n)
+        {
+            value += n;
+            return *this;
+        }
+
+        iota_iterator operator + (difference_type n) const // メンバ関数orフリー関数どっちでもよい
+        {
+            auto temp = *this;
+            temp += n;
+            return temp;
+        }
+
+        iota_iterator& operator -= (difference_type n)
+        {
+            value -= n;
+            return *this;
+        }
+
+        iota_iterator operator - (difference_type n)　// メンバ関数orフリー関数どっちでもよい
+        {
+            auto temp = *this;
+            temp -= n;
+            return temp;
+        }
+
+        // 省略
+    };
+
+
+    // difference_type + iota_iteratorの場合 (必ずクラス外のフリー関数として実装する)
+    template <class T>
+    iota_iterator<T> operator + (typename iota_iterator<T>::difference_type n,
+                                 const iota_iterator<T>& i)
+    {
+        return i + n;
+    }
+
+    // difference_type - iota_iteratorの場合 (必ずクラス外のフリー関数として実装する)
+    template <class T>
+    iota_iterator<T> operator - (typename iota_iterator<T>::difference_type n,
+                                 const iota_iterator<T>& i)
+    {
+        return i - n;
+    }
+
+
+    // イテレータの距離の実装はiota_iteratorの場合、単にvalueの差である。
+    // メンバー関数orフリー関数どっちでもよい。以下はフリー関数
+    template <class T>
+    typename iota_iterator<T>::difference_type operator -
+    (const iota_iterator<T>& a, const iota_iterator<T>& b) {
+        return a.value - b.value;
+    }
+
+
+    // 大小比較はvalueを比較するだけ
+    template <class T>
+    bool operator < (const iota_iterator<T>& a,
+                     const iota_iterator<T>& b)
+    {
+        return a.value < b.value;
+    }
+
+    template <class T>
+    bool operator <= (const iota_iterator<T>& a,
+                      const iota_iterator<T>& b)
+    {
+        return a.value <= b.value;
+    }
+
+    template <class T>
+    bool operator > (const iota_iterator<T>& a,
+                     const iota_iterator<T>& b)
+    {
+        return a.value > b.value;
+    }
+
+    template <class T>
+    bool operator >= (const iota_iterator<T>& a,
+                      const iota_iterator<T>& b)
+    {
+        return a.value >= b.value;
+    }
+
+
+
+    // ランダムアクセスイテレータ：連続したメモリー上に構築された要素の集合
+    // std::vectorやstd::arrayのイテレータが該当
+    template <class T>
+    struct iterator
+    {
+        T* ptr;
+
+        T& operator*() { return *ptr; }
+        iterator& operator++() noexcept
+        {
+            ++ptr;
+            return *this;
+        }
+
+        // その他のメンバー
+    };
+
+    // vectorやarrayのイテレータの実装は、ポインターとほぼ同じ処理をしている.
+    // その実装は上にあるように、単にポインターにデリゲートするだけ.
+    // C++の標準ライブラリの実装によっては、vectorやarrayの実装は単に生のポインター
+    // を返す.
+    template <class T, std::size_t N>
+    struct array
+    {
+        T storage[N];
+
+        T* begin() noexcept
+        {
+            return storage;
+        }
+
+        T* end() noexcept
+        {
+            return storage + N;
+        }
+    };
+
+
+    // イテレータはクラスであり、そのネストされた型名にvalue_typeやdifference_type, 
+    // iterator_categoryなどの型がある
+    template <class Iterator>
+    // ネストされた型名を使う
+    typename Iterator::reference_type
+    get_value(Iterator i) {
+        return *i;
+    }
+
+    // そのため、イテレータのネストされた型名を使うときは、直接使うのではなく、
+    // 一度、iterator_traitsを経由して使うとよい.
+}
+
+
+
+
+// イテレータの操作
+namespace iterator_operation_ns
+{
+    // イテレータはそのまま使うこともできるが、一部の操作を
+    // 簡単に行うための標準ライブラリがある
+
+    // advance(i, n): n移動する
+    // ランダムアクセスイテレータ i += n
+    // 前方イテレータ for ++i
+    // 双方向イテレータ for ++i or for --i
+    // std::advance(i, n)はイテレータカテゴリーごとに最適なn進める処理をよしなにやってくれる
+
+    // iを1前方に進める
+    // std::advance(i, 1);
+    // iを5前方に進める
+    // std::advance(i, 5);
+    // iを5後方に進める
+    // std::advance(i, -5);
+    // iは移動しない
+    // std::advance(i, 0);
+
+    // std::advance(i,n)はi自体が変化する
+
+    // -----------------
+
+    // distance(first, last): firstからlastまでの距離
+    // ランダムアクセスイテレータ auto dist = last - first;
+    // それ以外のイテレータ 
+    // std::size_t dist = 0;
+    // for (auto iter = first; iter != last; ++iter)
+    //     ++dist;
+
+    // iからjまでの距離を返す
+    // auto dist = std::distance(i, j);
+
+    // distanceに渡したイテレータは変更されない
+
+
+    // -----------------
+
+
+    // next/prev: 移動したイテレータを返す
+    // advance(i,n)はイテレータiを変更してしまう.
+    // イテレータを変更させず、移動後のイテレータも欲しい場合、
+    // 以下のように書かなければならない
+    // template <class Iterator>
+    // void f(Iterator i)
+    // {
+    //   auto j = i;
+    //   std::advance(j, 3);
+    //   // jはiより3前方に移動している
+    // }
+
+    // next
+    template <class Iterator>
+    void f1(Iterator i)
+    {
+        auto j = std::next(i, 3);
+        // jはiより3前方に移動している
+    }
+
+    // prev
+    template <class Iterator>
+    void f2(Iterator i)
+    {
+        auto j = std::prev(i ,3);
+        // jはiより3後方に移動している
+        // jはstd::advance(i, 3)したあとのiと同じ値
+    }
+
+    // next/prevに第二引数を渡さない場合、前後1だけ移動する.
+    template <class Iterator>
+    void f(Iterator i)
+    {
+        auto j = std::next(i);
+        // jは++iしたのと同じ値
+        auto k = std::prev(i);
+        // kは--iしたのと同じ値
+    }
+}
+
+
+
+// リバースイテレータ
+namespace reverse_iterator_ns
+{
+    // 通常のイテレータは、要素を順番どおりにたどる.
+    template <class Iterator>
+    void print(Iterator first, Iterator last)
+    {
+        for (auto iter = first; iter != last; ++iter)
+        {
+            std::cout << *iter;
+        }
+        std::cout << std::endl;
+    }
+
+
+    // 双方向イテレータ以上であれば、逆順にたどることはできる.
+    template <class Iterator>
+    void reverse_print(Iterator first, Iterator last)
+    {
+        for (auto iter = std::prev(last); iter != first; --iter)
+        {
+            std::cout << *iter;
+        }
+        std::cout << std::endl;
+    }
+
+    // イテレータを正順にたどるか逆順にたどるかという違いだけで、
+    // 本質てkに同じアルゴリズム、同じコードを2度も書きたくない.
+    // そこで、役に立つのがリバースイテレータ
+    // std::reverse_iterator<Iterator>はイテレータIteratorに
+    // 対するリバースイテレータを提供する.
+    // リバースイテレータは、イテレータのペア[first, last)を受け取り
+    // lastの一つ前の要素が先頭でfirstの要素が末尾になるような順番のイテレータにしてくれる.
+    template <class Iterator>
+    void reverse_iterator_sample(Iterator i)
+    {
+        std::vector<int> v = {1,2,3,4,5};
+
+        // std::reverse_iterator<std::vector<int>::iterator>
+        std::reverse_iterator first {std::end(v)};
+        std::reverse_iterator last {std::begin(v)};
+
+        // 54321
+        std::for_each(first, last, [](auto x) {
+            std::cout << x;
+        });
+        std::cout << std::endl;
+    }
+}

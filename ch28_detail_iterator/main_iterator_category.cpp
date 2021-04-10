@@ -191,5 +191,24 @@ int main(int, char**)
 
     }
 
+
+    // リバースイテレータ
+    {
+        // リバースイテレータはとても便利なので、
+        // std::vectorのような標準ライブラリのコンテナーには
+        // 最初からネストされた型名としてリバースイテレータ::reverse_iteratorがある.
+        // リバースイテレータを返すrbegin/rendもある.
+
+        std::vector<int> v = { 1,2,3,4,5};
+
+        // std::vector<int>::reverse_iterator
+        auto first = std::rbegin(v);
+        auto last = std::rend(v);
+
+        // 54321
+        std::for_each(first, last, [](auto x) { std::cout << x; });
+        std::cout << std::endl;
+    }
+
     return 0;
 }
