@@ -22,6 +22,7 @@ add_subdirectory(ch25_array_iterator)
 add_subdirectory(ch26_array_exception)
 add_subdirectory(ch27_pointer)
 add_subdirectory(ch28_detail_iterator)
+add_subdirectory(ch29_malloc_memory)
 
 # set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 # set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
