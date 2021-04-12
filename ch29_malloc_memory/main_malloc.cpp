@@ -27,6 +27,26 @@ struct Logger
 };
 
 
+template <class T>
+struct smart_ptr
+{
+    T* ptr;
+
+    // コンストラクタで構築
+    smart_ptr()
+        : ptr(new T{}) {}
+    
+    // デストラクタで破棄
+    ~smart_ptr() {
+        delete ptr;
+    }
+
+    T& operator *() const noexcept {
+        return *ptr;
+    }
+};
+
+
 int main(int, char**)
 {
     // void* malloc(std::size_t size);
@@ -122,6 +142,41 @@ int main(int, char**)
         logger_ptr->~Logger();
         // 破棄
         ::operator delete(ptr);
+    }
+
+    // new/delete
+    // クラスのオブジェクトを動的確保するのに、生のメモリの確保/解放とクラスのオブジェクトの
+    // 構築/破棄を自前で行うのは面倒。
+    // new/deleteは確保と構築、破棄と解放を同時にやってくれる機能。
+    {
+        int* int_ptr = new int{123};
+        std::vector<int>* vector_ptr = new std::vector<int>{};
+
+        delete int_ptr;
+        delete vector_ptr;
+
+        // new式がメモリーの確保に失敗するとstd::bad_alloc例外を投げる
+        try {
+            int_ptr = new int{0};
+            // 確保成功
+            delete int_ptr;
+        } catch (std::bad_alloc e)
+        {
+            // 確保失敗
+        }
+    }
+
+    // 配列版new/delete
+    {
+        int* int_array_ptr = new int[5]{1,2,3,4,5};
+        delete[] int_array_ptr;
+    }
+
+    // スマートポインター
+    {
+        smart_ptr<int> ptr; // このスマートポインタはコピーできてしまうので、実用性はない
+        *ptr = 123;
+        // 自動的に破棄される
     }
 
 }
