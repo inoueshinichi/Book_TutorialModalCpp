@@ -3,3 +3,7 @@ add_executable(test_allocator
     allocator.hpp
 )
 
+add_executable(test_vector
+    main_vector.cpp
+    vector.hpp
+)
