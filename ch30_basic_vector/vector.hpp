@@ -45,7 +45,7 @@ namespace example
 
         // 要素アクセス
         void push_back(const T& x);
-        T& operator [](std::size_t i) noexcept;
+        // T& operator [](std::size_t i) noexcept;
 
         // イテレータアクセス
         iterator begin() noexcept
@@ -103,7 +103,7 @@ namespace example
         { return first; }
         reference back()
         { return last - 1; }
-        const_reference back()
+        const_reference back() const 
         { return last - 1; }
 
         pointer data() noexcept

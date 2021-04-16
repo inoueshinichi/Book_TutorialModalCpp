@@ -24,6 +24,7 @@ add_subdirectory(ch27_pointer)
 add_subdirectory(ch28_detail_iterator)
 add_subdirectory(ch29_malloc_memory)
 add_subdirectory(ch30_basic_vector)
+add_subdirectory(ch31_implement_vector)
 
 # set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 # set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

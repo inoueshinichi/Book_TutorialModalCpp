@@ -53,6 +53,8 @@ int main(int, char**)
         // 上記では書きづらいのでエイリアスを使う
         using traits = std::allocator_traits<std::allocator<int>>;
         int* p2 = traits::allocate(a, 1);
+        // int* pp = new (p2) int{0};
+        // pp->~int();
         traits::deallocate(a, p2, 1);
         // まだ書きづらいのでdecltype(expr)を使う
         // int型
