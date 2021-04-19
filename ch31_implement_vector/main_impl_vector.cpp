@@ -2,6 +2,12 @@
 
 #include "impl_vector.hpp"
 
+struct X
+{
+    X() { std::cout << "default constructed." << std::endl; }
+    ~X() { std::cout << "destructed." << std::endl; }
+};
+
 int main(int, char**)
 {
     // メモリ確保と解放の起こるタイミング
@@ -57,8 +63,7 @@ int main(int, char**)
     
     // デフォルトコンストラクタ
     {
-        using namespace example::vector;
-        vector<int> v;
+        example::vector<int> v;
         // まだ何もできない
     }
 
@@ -68,9 +73,74 @@ int main(int, char**)
         // 空
         std::vector<int> v1(alloc);
         // 要素数5
-        std::vecotr<int> v2(5, alloc);
+        std::vector<int> v2(5, alloc);
         // 要素数5で初期値123
         std::vector<int> v3(5, 123, alloc);
     }
 
+
+    // reserveの実装
+    {
+        std::vector<int> v = {1,2,3,4,5};
+        // 3個の要素を保持できるように予約
+        v.reserve(3);
+        // 無視する
+        // 確保したい数以上にすでにメモリを確保している
+    }
+
+    {
+        std::vector<int> v;
+        // おそらく動的メモリ確保
+        v.reserve(10000);
+        // C++の規格はvectorのデフォルトコンストラクタが予約する
+        // ストレージについて何も言及していない
+
+        std::vector<int> vv = {1,2,3};
+        // 1万個の要素をほじできるだけのメモリを予約
+        vv.reserve(10000);
+        // vvは{1,2,3}
+    }
+
+    // resize
+    {
+        // resizeによって新たに増えたストレージには
+        // クラスがデフォルト構築される
+        std::vector<X> v;
+        v.resize(5); 
+        // "default constructor" が5回呼ばれる
+
+
+        // バグ?
+        // // resize(sz, value)では、新たに増えたストレージについて、
+        // // その要素をvalueで初期化する.
+        // std::vector<int> vv = {1,2,3};
+        // vv.resize(5, 4);
+        // // vは{1,2,3,4,4};
+
+        // 要素数が減る場合、要素は末尾から順番に破棄されていく.
+        std::vector<X> vvv(5);
+        v.resize(2);
+        std::cout << "resized." << std::endl;
+
+        // // resizeで要素数が元と同じなら何もしない
+    }
+
+    // shrink_to_fit
+    {
+        std::vector<int> v(10, 1);
+        std::cout << v.size() << std::endl;
+        std::cout << v.capacity() << std::endl;
+        // v.resize(70);
+        // std::cout << v.size() << std::endl;
+        // std::cout << v.capacity() << std::endl;
+        v.shrink_to_fit();
+        std::cout << v.capacity() << std::endl;
+    }
+
+    // 初期化リスト
+    {
+        std::vector<int> v = {1,2,3};
+
+        std::initializer_list<int> init = {1,2,3,4,5};
+    }
 }

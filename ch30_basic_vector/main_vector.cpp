@@ -59,4 +59,6 @@ int main(int, char**)
         int* ptr = v.data();
         std::cout << *ptr << std::endl; // 1
     }
+
+    
 }

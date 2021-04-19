@@ -43,7 +43,7 @@ namespace example
         { return traits::allocate(alloc, n); }
 
         // ヘルパー関数 (2)
-        void delallocate()
+        void deallocate()
         { traits::deallocate(alloc, first, capacity()); }
          
         // ヘルパー関数 (3)
@@ -93,6 +93,24 @@ namespace example
             : vector(allocator_type())
         {}
 
+        // イテレータのペアを入力とするコンストラクタ
+        template <class InputIterator>
+        vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type())
+            : vector(alloc)
+        {
+            // ストレージ確保
+            reserve(std::distance(first, last));
+            for (auto i = first; i != last; ++i)
+            {
+                push_back(*i); // *iでインスタンスを構築
+            }
+        }
+
+        // std::initializer_list<T>を引数にとるコンストラクタ
+        vector(std::initializer_list<value_type> init, const allocator_type& alloc = allocator_type())
+            : vector(init.begin(), init.end(), alloc)
+        {}
+
         // デストラクタ
         ~vector()
         {
@@ -103,12 +121,147 @@ namespace example
         }
 
         // コピー
-        vector(const vector& x);
-        vector& operator=(const vector& x);
+        // vector(const vector& x);
+        // vector& operator=(const vector& x);
+
+        // reserveの実装
+        // 生の動的メモリを確保して、データメンバを適切に設定する
+        // 考慮すべき点がおおい
+        void reserve(size_type sz)
+        {
+            // すでに指定された要素数以上に予約されているなら何もしない
+            if (sz <= capacity())
+                return;
+            
+            // 動的メモリを確保する
+            auto ptr = allocate(sz);
+
+            // 古いストレージの情報を保存
+            auto old_first = first;
+            auto old_last = last;
+            auto old_capacity = capacity();
+
+            // 新しいストレージに差し替え
+            first = ptr;
+            last = first;
+            reserved_last = first + sz;
+
+            // // 例外安全のため
+            // // 関数を抜けるときに古いストレージを破棄する
+            // std::scope_exit e([&] {
+            //     traits::deallocate(alloc, old_first, old_capacity);
+            // });
+
+            // 古いストレージから新しいストレージに要素をコピー構築
+            // 実際にはムーブ構築　
+            for (auto old_iter = old_first; old_iter != old_last; ++old_iter, ++last)
+            {
+                // このコピーの理解にはムーブセマンティクスが必要
+                construct(last, std::move(*old_iter));
+            }
+
+            // 新しいストレージにコピーし終えたので
+            // 古いストレージの値は破棄
+            for (auto riter = reverse_iterator(old_last), rend = reverse_iterator(old_first); 
+                 riter != rend; ++riter)
+            {
+                destroy(&*riter);
+            }
+            // scope_exitによって自動的にストレージが破棄される.
+
+            traits::deallocate(alloc, old_first, old_capacity);
+        }
+
+
+        void resize(size_type sz)
+        {
+            // 現在の要素数より少ない
+            if (sz < size())
+            {
+                auto diff = size() - sz;
+                destroy_until(rbegin() + diff);
+            }
+            // 現在の要素数より大きい
+            else
+            {
+                reserve(sz);
+                for (; last != reserved_last; ++last)
+                {
+                    construct(last); // デフォルト構築してる
+                }
+            }
+        }
+
+
+        void resize(size_type sz, const_reference value)
+        {
+            // 現在の要素数より少ない
+            if (sz < size())
+            {
+                auto diff = size() - sz;
+                destroy_until(rbegin() + diff);
+            }
+            // 現在の要素数より大きい
+            else
+            {
+                reserve(sz);
+                for (; last != reserved_last; ++last)
+                {
+                    construct(last, last); // 要素をvalueで初期化
+                }
+            }
+        }
 
         // 要素アクセス
-        void push_back(const T& x);
-        // T& operator [](std::size_t i) noexcept;
+        void push_back(const T& x)
+        {
+            // よくある実装： 動的メモリ確保が必要になった場合、現在のストレージの2倍を確保する
+
+            // 予約メモリが足りなければ拡張
+            if (size() + 1 > capacity())
+            {
+                // 現在のストレージサイズ
+                auto c = size();
+                // 0の場合は1
+                if (c == 0)
+                    c == 1;
+                else
+                    // それ以外の場合は2倍する
+                    c *= 2;
+
+                reserve(c);
+            }
+
+            construct(last, x);
+            ++last;
+        }
+
+
+        // shrink_to_fitは切り詰めるが、新しいストレージを確保する作業はある
+        void shrink_to_fit()
+        {
+            // 何もする必要がない
+            if (size() == capacity())
+                return ;
+
+            // 新しいストレージの確保
+            auto ptr = allocate(size());
+            // コピー
+            auto current_size = size();
+            for (auto raw_ptr = ptr, iter = begin(), iter_end = end();
+                 iter != iter_end; ++iter, ++raw_ptr)
+            {
+                construct(raw_ptr, *iter); // *iterでインスタンスを構築
+            }
+            // 破棄
+            clear();
+            deallocate();
+            // 新しいストレージを使う
+            first = ptr;
+            last = ptr + current_size;
+            reserved_last = last;
+        }
+        
 
         // イテレータアクセス
         iterator begin() noexcept
