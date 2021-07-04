@@ -67,6 +67,13 @@ namespace example
                 destroy(&*riter); // riterはポインタ(T*).
             }
         }
+
+        // ヘルパー関数 (6)
+        void destroy_all()
+        {
+            destroy_until(rend());
+        }
+
     public:
 
         // コンストラクタ (1)
@@ -114,15 +121,98 @@ namespace example
         // デストラクタ
         ~vector()
         {
-            // 1. 要素を末尾から先頭に向かう順番では気
+            // 1. 要素を末尾から先頭に向かう順番で破棄
             clear();
             // 2. 生のメモリを解放する
             deallocate();
         }
 
         // コピー
-        // vector(const vector& x);
-        // vector& operator=(const vector& x);
+        vector(const vector& other)
+            // アロケータのコピー
+            : alloc(traits::select_on_container_copy_construction(other.alloc))
+        {
+            // コピー処理
+            // 1. コピー元の要素数を保持できるだけのストレージを確保
+            reserve(other.size());
+        
+            // 2. コピー元の要素をコピー構築
+            // dstはコピー先
+            // [src, last)はコピー元
+            for (auto dst = first, src = other.begin(), last = other.end();
+                 src != last; ++dst, ++src)
+            {
+                construct(dst, *src);
+            }
+            last = first + other.size();
+        }
+
+        // アロケータのコピーは必要ない
+        // 自分自身への対応が必要
+        // コピー先とコピー元の要素数がおなじであるとは限らない.
+        // コピー先とコピー元の要素数が同じであれば、単にコピー代入すればよい.
+        vector& operator=(const vector& rhs)
+        {
+            // 1.自分自身への代入ならば何もしない
+            // 2.要素数が同じならば要素ごとにコピー代入
+            // 3.それ以外の場合で、予約数が十分ならば有効な要素にはコピー代入、残りはコピー構築
+            // 4.それ以外の場合で、予約数が不十分ならば、現在の要素は全て破棄して新たなストレージを確保してコピー
+
+            // 1.自分自身への代入ならば何もしない
+            if (this == &rhs)
+                return *this;
+            
+            // 2.要素数が同じならば要素ごとにコピー代入
+            if (size() == rhs.size())
+            {
+                // 要素毎のコピー
+                std::copy(rhs.begin(), rhs.end(), begin());
+            }
+            else
+            {
+                // 3.それ以外の場合で、予約数が十分ならば有効な要素にはコピー代入、残りはコピー構築
+                if (capacity() >= rhs.size())
+                {
+                    // 以下のコードに対する疑問
+                    // コピー先がコピー元より多くの要素を構築していたら
+                    // コピー元外の要素はどのような扱いになるのか?
+                    // コピー構築の際に元の要素ははされるのか？はては、コピー構築がエラーになるのか?
+                    // destroy_until()が必要だと思う
+
+                    // 有効外の要素を破棄
+                    destroy_until(reverse_iterator(begin() + rhs.size()));
+                    std::cout << "destroy_until" << std::endl;
+
+                    // 有効な要素はコピー
+                    std::copy(rhs.begin(), rhs.begin() + rhs.size(), begin());
+
+
+                    // 残りはコピー構築
+                    for (auto src_iter = rhs.begin() + rhs.size(), src_end = rhs.end();
+                        src_iter != src_end; ++src_iter, ++last)
+                    {
+                        construct(last, *src_iter);
+                    }
+                }
+                // 4.それ以外の場合で、予約数が不十分ならば、現在の要素は全て破棄して新たなストレージを確保してコピー
+                else
+                {
+                    // 要素を全て破棄
+                    destroy_all();
+                    // 予約
+                    reserve(rhs.size());
+                    // コピー構築
+                    for (auto src_iter = rhs.begin(), src_end = rhs.end();
+                        src_iter != src_end; ++src_iter, ++last)
+                    {
+                        construct(last, *src_iter);
+                    }
+                }
+            }
+
+            return *this;
+        }
+
 
         // reserveの実装
         // 生の動的メモリを確保して、データメンバを適切に設定する
@@ -224,7 +314,7 @@ namespace example
                 auto c = size();
                 // 0の場合は1
                 if (c == 0)
-                    c == 1;
+                    c = 1;
                 else
                     // それ以外の場合は2倍する
                     c *= 2;
