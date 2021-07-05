@@ -281,7 +281,7 @@ int main(int, char**)
         // フォワーディングリファレンスをもつテンプレート関数の仮引数tに
         // 実引数としてrvalueを渡すと, Tはrvalue型となる. tの型はT &&.
         // Tはint
-        // f(0);
+        // f(0);]
 
         // もし実引数として型Uのlvalueを渡すと、テンプレートパラメータTが
         // U &となる. そして、テンプレートパラメータTに対するリファレンス宣言子(&,&&)
@@ -295,7 +295,7 @@ int main(int, char**)
         move_ns::f(0); // T:int, A:int &, B:int &&
         int lvalue{};
         // lvalue
-        f(lvalue); // T:int &, A: int &, B:int &
+        // f(lvalue); // T:int &, A: int &, B:int &
 
 
         // std::remove_referenct_t
