@@ -71,7 +71,20 @@ namespace example2
         }
 
         // ムーブ代入演算子
-        
+        dynamic_array &operator=(dynamic_array &&)
+        {
+            // ムーブ先のストレージ解放
+            delete first;
+
+            // ムーブ先へ所有権の移動
+            first = r.first;
+            last = r.last;
+            // ムーブ元の所有権の破棄
+            r.first = nullptr;
+            r.last = nullptr;
+
+            return *this;
+        }
     };
 }
 
