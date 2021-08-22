@@ -3,15 +3,67 @@
 
 int main(int, char **)
 {
-    // 乱数分布ライブラリ
+    // 生の乱数の乱数分布へのマッピング
     {
+        // 間違った乱数分布の作成方法
+        {
+            /**
+             * @brief n = r mod |b-a| + a 
+             * このやり方は、剰余のあまり 0, 1, ... a-1
+             * の出現確率がa, a+1, a+2, ..., b より大きくなるので正しくない方法.
+             * 1~6 -> 50%の確率で0, 1を出力する3bit整数(0-7)を使う. 
+             * (0-7) % 6 だと 6, 7の整数が1, 2に割り当てられてしまう.
+             */
+            auto wrong_dice = [](auto &e) -> int {
+                auto r = e();
+                auto n = r % 6 + 1;
+                return n;
+            };
 
+            int seed = 123;
+            std::mt19937 e(seed);
+
+            std::cout << "Wrong dice: " << std::endl;
+            for (int i = 0; i < 6; ++i)
+            {
+                std::cout << wrong_dice(e) << std::endl;
+            }
+            std::cout << " -------------- " << std::endl;
+        }
+
+
+        // 正しい乱数分布の作成方法
+        // この方法以外に同様に確からしい乱数分布を生成する方法はない.
+        {
+            int seed = 123;
+            std::mt19937 e(seed);
+
+            auto correct_dice = [&](auto &) -> int {
+                // ループ実行する
+                while (true)
+                {
+                    // 3bitの生の乱数を得る
+                    auto r = e() & 0b111;
+                    // 0-5なら乱数分布終わり
+                    if (r <= 5)
+                        return r;
+                    // それ以外なら繰り返し(確率的にしか処理時間を見積もることができない)!
+                }
+            };
+
+            std::cout << "Correct dice: " << std::endl;
+            for (int i = 0; i < 6; ++i)
+            {
+                std::cout << correct_dice(e) << std::endl;
+            }
+            std::cout << " -------------- " << std::endl;
+        }
     }
 
 
     // 分布クラス
     {
-    
+        
     }
 
 
@@ -87,7 +139,7 @@ int main(int, char **)
 
     // 極値分布(std::extreme_value_distribution<RealTyle>)
     {
-
+        
     }
 
 
@@ -123,7 +175,7 @@ int main(int, char **)
 
     // スチューデントのt分布(std::student_t_distribution<RealType>)
     {
-
+        
     }
 
 
@@ -146,6 +198,6 @@ int main(int, char **)
 
     // 区分線形分布(std::piecewise_linear_distribution<RealTyle>)
     {
-        
+
     }
 }
