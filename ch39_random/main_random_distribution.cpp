@@ -63,7 +63,73 @@ int main(int, char **)
 
     // 分布クラス
     {
-        
+        // operator()で乱数を分布させる
+        auto f = [](auto &e, auto &d) {
+            return d(e); // 分布された乱数
+        };
+
+        /// 分布クラスのmin,max
+        auto f2 = [](auto &d) {
+            auto a = d.min();
+            auto b = d.max();
+        };
+
+        // 分布クラスは、構築時の実引数を同名のメンバ関数で取得できる.
+        // e.g. std::uniform_int_distribution(a, b)の場合、
+        // d.a(); // 実引数
+        // d.b(); // 実引数
+        {
+            std::uniform_int_distribution d(1, 6);
+            std::cout << d.a() << std::endl;
+            std::cout << d.b() << std::endl;
+            std::cout << "-----" << std::endl;
+        }
+
+        // 分布クラスは内部状態のリセットができる.
+        // 分布クラスは、内部的に乱数値をキャッシュしている可能性がある.
+        // 乱数エンジンの状態は同じでも、分布クラスを通して出力する結果が同じである保証はないが
+        // .reset()関数を使って内部状態をリセットすると同じ出力をする保証がある.
+        {
+            std::uniform_int_distribution a(1, 6);
+            std::uniform_int_distribution b(1, 6);
+
+            std::mt19937 x;
+
+            // 乱数を生成
+            // aは内部に乱数をキャッシュするかもしれない.
+            a(x);
+
+            // yはxと同じ内部状態を持つ
+            // つまり生成する生の乱数は同じ.
+            std::mt19937 y = x;
+
+            auto r1 = a(x);
+            auto r2 = b(x);
+
+            // r1 == r2である保証はない
+
+            // 同じ内部状態になることが保証される.
+            {
+                // 分布クラスの内部状態をリセット
+                a.reset();
+                // true
+                bool retb = (a(x) == b(y));
+            }
+
+            // クラス分布の内部状態を取得/設定
+            auto f3 = [](auto &d) { // auto: Distribution型
+              // 内部状態の取り出し
+              // Distribution::param_type型  
+              auto p = d.param();
+
+              // dと同じ内部状態を持つ分布クラス変数
+              decltype(d) same_d(p);
+
+              decltype(d) other_d;
+              // 既存の変数の内部状態を変更
+              other_d.param(p);
+            };
+        }
     }
 
 
@@ -71,11 +137,42 @@ int main(int, char **)
     {
         // 整数の一様分布(std::uniform_int_distribution<IntType>)
         {
+            // 整数型の乱数i, a<=i<=bを以下の定数離散確率関数に従って生成する.
+            // P(i|a,b) = 1 / (b - a + 1)
 
+            auto f = [](auto &engine) {
+                std::uniform_int_distribution d(1, 10);
+                d.a(); // 1
+                d.b(); //10
+
+                // 1から10までの範囲の乱数
+                auto r = d(engine);
+            };
+
+            // 値は負数にも適用される
+            std::uniform_int_distribution d(-3, 3);
+            // -3, -2, -1, 0, 1, 2, 3 を1/7の確率でサンプリングする.
         }
 
         // 浮動小数点数の一様分布(std::uniform_real_distribution<RealType>)
         {
+            // 浮動小数点の乱数x, a<=x<=bを以下の定数確率密度関数に従って分布させる.
+            // p(x|a,b) = 1 / (b - a)
+            // b == a のとき未定義.
+
+            auto f = [](auto &engine) {
+                std::uniform_real_distribution d(0.0, 1.0);
+                d.a(); // 0.0
+                d.b(); // 1.0
+
+                // 0.0から1.0までの範囲の乱数
+                auto r = d(engine);
+            };
+
+            // 浮動小数点の難しいところは、整数と違って値の範囲の状態が多い.
+            // 0.0 ~ 1.0 の間には 0.01, 0.011, 0.2, 0.5 ..., 1.0と多い
+            // uniform_real_distributionは指定された値の範囲で浮動小数点が表現できる
+            // すべての値のうちから生成する.
 
         }
     }
