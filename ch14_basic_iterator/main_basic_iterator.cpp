@@ -48,7 +48,7 @@ int main(int, char**) {
         --i;
         std::cout << *i << std::endl; // 範囲を外れたら０が出力される
         --i;
-        std::cout << *i << std::endl;　// 範囲を外れたら０が出力される
+        std::cout << *i << std::endl; // 範囲を外れたら０が出力される
     }
     {
         std::vector<int> v = {1,2,3,4,5};

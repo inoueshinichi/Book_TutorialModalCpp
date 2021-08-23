@@ -40,12 +40,12 @@ int main(int, char**)
 
     // cout_iterator : 出力イテレータの派生
     {
-        std::vector<int> v = {1,2,3,4,5};
-        using namespace output_iterator_ns;
-        cout_iterator out_it;
+        // std::vector<int> v = {1,2,3,4,5};
+        // using namespace output_iterator_ns;
+        // cout_iterator out_it; // 出力要件を満たさないイテレータ -> コンパイルエラー
 
-        std::copy(std::begin(v), std::end(v), out_it);
-        std::cout << std::endl;
+        // std::copy(std::begin(v), std::end(v), out_it);
+        // std::cout << std::endl;
     }
 
     // 標準ライブラリのostream_iterator

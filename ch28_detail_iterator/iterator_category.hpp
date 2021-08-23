@@ -737,7 +737,7 @@ namespace random_access_iterator_ns
             return *this;
         }
 
-        iota_iterator operator - (difference_type n)　// メンバ関数orフリー関数どっちでもよい
+        iota_iterator operator - (difference_type n) // メンバ関数orフリー関数どっちでもよい
         {
             auto temp = *this;
             temp -= n;
