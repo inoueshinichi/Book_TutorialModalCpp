@@ -13,7 +13,7 @@
 #include <initializer_list>
 
 #if __has_include(<cstdalign>)
-    #include <cstdalign
+    #include <cstdalign>
 #endif
 
 #include <stdexcept>

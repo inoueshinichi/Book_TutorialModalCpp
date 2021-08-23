@@ -181,13 +181,51 @@ int main(int, char **)
     // ベルヌーイ分布(Bernoulli Distribution)
     {
         // ベルヌーイ試行
+        // コイントスの結果, 表/裏
+        // 6面ダイスで6が出るか、6以外が出るかetc..
         {
-
+            // 宝箱にアイテムが入っている(32%の確率でアイテムあり)
+            auto bernoulli_trial = [](auto &engine) -> bool {
+                // 1から100までの整数の乱数を生成する
+                std::uniform_int_distribution d(1, 100);
+                // 32以下ならアイテムが入っている
+                // 32より大きい場合空っぽ
+                return d(engine) <= 32;
+            };
         }
 
         // ベルヌーイ分布(std::bernoulli_distribution)
+        // P(b|p) = 1) p if b=true, (1-p) b=false
         {
+            std::bernoulli_distribution d(0.5);
+            d.p(); // 0.5
+            std::mt19937 e;
+            d(e);
+        }
 
+        // 32%の確率でtrueが出るベルヌーイ分布
+        auto open_chest = [](auto &e) -> bool {
+            std::bernoulli_distribution d(32.0 / 100.0);
+            return d(e);
+        };
+
+        // たくさんサンプリングして32%でtrueとなるか確かめる
+        {
+            // 試行回数
+            const int trial_count = 10000; // 100;
+
+            std::mt19937 e;
+            std::bernoulli_distribution d(32.0 / 100.0);
+
+            std::array<int, 2> result{};
+            for (int i = 0; i != trial_count; ++i) {
+                // boolからintへの変換は false:0, true:1
+                ++result[d(e)];
+            }
+            double false_prob = double(result[0]) / trial_count;
+            double true_prob = double(result[1]) / trial_count;
+            std::cout << "false: " << false_prob * 100 << "%" << std::endl;
+            std::cout << "true: " << true_prob * 100 << "%" << std::endl;
         }
     }
 
